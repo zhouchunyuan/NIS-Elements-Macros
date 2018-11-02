@@ -1,0 +1,34 @@
+// This macro helps to merge seperated ND sequence into a timelapse
+// The merge is grouped by point number
+// for example, if the data is collected on 5 points, the results will
+// be 5 files, each corresponding to a timelapse of one certain point
+ 
+char      buf[256],filenames[2880000], buffer[2880000];
+char      *filename;
+int       numfiles,qw;
+dword     i,n, points=5;
+
+
+qw = Int_Question("Merge images","Do you want to continue?","&Yes","&No","","",1,0);
+
+if(qw == 1){
+    Int_GetString("Type in folder","Path string:",buf,256);
+    strcat(buf,"\\*.nd2");
+    numfiles = FindFiles(filenames, 2880000, buf, 0);
+    
+    if(numfiles != 0){
+        points = Int_GetValue("Number of points","How many points:",points,1,10);
+        for(n=0;n<points;++n){
+            *buffer = 0;
+            for(i=0+n; i<numfiles; i=i+points){
+                filename = filenames+(i*MAX_FILE_NAME);
+                strcat(buffer,filename);
+                strcat(buffer,";");
+            }
+            sprintf(buf,"Merge Point No %d","n");
+            WaitText(0,buf);
+            ND_MergeFiles(buffer,buf,NULL,1);
+        }
+    }
+}
+                  
